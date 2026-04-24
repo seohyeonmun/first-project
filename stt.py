@@ -2,6 +2,7 @@ import whisper
 import requests
 import re
 import xml.etree.ElementTree as ET
+import Levenshtein
 
 # 1. Whisper - base 모델
 model = whisper.load_model("base")
@@ -21,7 +22,7 @@ def extract_bus_number(text):
 
 
 # 4. 정류소 ID 찾기 
-def find_busstop_id(keyword, service_key):
+def find_busstop_id(keywords, service_key):
     url = "http://api.gwangju.go.kr/xml/stationInfo"  # 여기 URL 넣어야 함
 
     params = {
@@ -39,20 +40,41 @@ def find_busstop_id(keyword, service_key):
     root = ET.fromstring(response.text)
 
     id = [] 
+    # best = None
+    best_name = None
+    best_score = 0
 
-    for item in root.iter("STATION"): # 같은 이름의 정류소가 존재(상행/하행에 따라)
-        name = item.find("BUSSTOP_NAME").text
-        busstop_id = item.find("BUSSTOP_ID").text
-        # next_busstop = item.find("NEXT_BUSSTOP").text => 모든 정류소마다 항상 있는 값이 아님! 실제 데이터는 불완전하다!
+
+    for keyword in keywords :
+        for item in root.iter("STATION"): # 같은 이름의 정류소가 존재(상행/하행에 따라)
+            name = item.find("BUSSTOP_NAME").text
+            busstop_id = item.find("BUSSTOP_ID").text
+            # next_busstop = item.find("NEXT_BUSSTOP").text => 모든 정류소마다 항상 있는 값이 아님! 실제 데이터는 불완전하다!
+            
+            score = Levenshtein.ratio(keyword, name)
+
+            if score > best_score:
+                best_score = score
+                best_name = name
+                id = [(best_name, busstop_id)]
+            elif name == best_name:
+                id.append((name, busstop_id))
+            
+        # for i in root.iter('STATION'):
+        #     busstop_id = i.find("BUSSTOP_ID").text
+        #     name2 = i.find("BUSSTOP_NAME").text
+        #     if best == name2:
+        #         id.append((best, busstop_id))
+
         
-        if keyword in name:
-            # print(f"정류소 찾음: {name} / ID: {busstop_id}")
-            id.append((name,busstop_id))
+            # if name in keyword:
+            #     # print(f"정류소 찾음: {name} / ID: {busstop_id}")
+            #     id.append((name,busstop_id))
 
-            # for elem in root.iter():
-            #     print(elem.tag)
+                # for elem in root.iter():
+                #     print(elem.tag)
 
-            # return busstop_id
+                # return busstop_id
 
     if id:
         return id
@@ -75,7 +97,12 @@ def extract_busstop_name(text, bus_number):
     # print(words)
 
     if words:
-        return words[0]
+        candidates = []
+        for i in range(len(words)):
+            combined = "".join(words[i:])
+            candidates.append(combined)
+        return candidates[::-1]
+        # return words[0]
     
     return None
 
@@ -138,20 +165,20 @@ if __name__ == "__main__":
 
     SERVICE_KEY = "5d12073e2b1145367a82b4a460f37d262fe158a61d227acd9ad6fa32d0070069"
 
-    # 🎤 음성 입력
-    text = speech_to_text("audio/봉선.wav")
-    print("인식된 문장:", text)
+    #  음성 입력
+    text = speech_to_text("audio/운림.wav")
+    # print("인식된 문장:", text)
 
 
-    # 🚌 버스 번호 추출
+    #  버스 번호 추출
     bus_number = extract_bus_number(text)
-    print("추출된 버스 번호:", bus_number)
+    # print("추출된 버스 번호:", bus_number)
 
-    # 📍 정류소 이름 (일단 수동 입력)
+    # 정류소 이름 
     busstop_name = extract_busstop_name(text, bus_number)
-    print("정류소: ", busstop_name)
+    # print("정류소: ", busstop_name)
 
-    # 🔎 정류소 후보 ID 찾기
+    # 정류소 후보 ID 찾기
     busstop_id = find_busstop_id(busstop_name, SERVICE_KEY)
     # busstop_id = find_busstop_id(busstop_name, SERVICE_KEY)
     # print(busstop_id)
@@ -172,7 +199,7 @@ if __name__ == "__main__":
     #     print('도착 정보 없음')
 
     if busstop_id and bus_number:
-        # 📡 도착정보 조회
+        #  도착정보 조회
         for i in range(len(busstop_id)):
             xml_data = get_arrival_data(busstop_id[i][1], SERVICE_KEY)
 
