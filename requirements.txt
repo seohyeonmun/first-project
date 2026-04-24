@@ -1,0 +1,10 @@
+python-dotenv>=1.0.1
+requests>=2.32.3
+faster-whisper>=1.0.3
+sounddevice>=0.5.1
+soundfile>=0.12.1
+numpy>=1.26.4
+openwakeword>=0.6.0
+torch>=2.2.0
+torchaudio>=2.2.0
+fish-audio-sdk>=1.0.0
