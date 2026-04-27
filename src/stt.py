@@ -105,9 +105,24 @@ def extract_busstop_name(text, bus_number):
         # return words[0]
     
     return None
+
+# 6. 자동 선택
+# def select_correct_busstop(candidates, bus_number, service_key):
+#     for name, busstop_id in candidates:
+#         xml_data = get_arrival_data(busstop_id, service_key)
+
+#         if not xml_data:
+#             continue
+        
+#         arrival = get_arrival_time(xml_data, bus_number)
+#         if arrival: # 버스가 실제 오는 정류소
+#             print('선택된 정류소:', name)
+#             return busstop_id
+    
+#     return None
     
 
-# 6. 도착정보 조회
+# 7. 도착정보 조회
 def get_arrival_data(busstop_id, service_key):
     url = "http://api.gwangju.go.kr/xml/arriveInfo"
 
@@ -125,7 +140,7 @@ def get_arrival_data(busstop_id, service_key):
     return response.text
 
 
-# 7. 특정 버스 필터링
+# 8. 특정 버스 필터링
 def get_arrival_time(xml_data, target_bus):
     root = ET.fromstring(xml_data)
 
@@ -145,7 +160,7 @@ def get_arrival_time(xml_data, target_bus):
     return None, None
 
 
-# 8. 실행
+# 9. 실행
 if __name__ == "__main__":
 
     SERVICE_KEY = "5d12073e2b1145367a82b4a460f37d262fe158a61d227acd9ad6fa32d0070069"
@@ -167,6 +182,20 @@ if __name__ == "__main__":
     busstop_id = find_busstop_id(busstop_name, SERVICE_KEY)
     print(busstop_id)
 
+    # 자동 선택 => 하나만 선택하게 만든 부분
+    # busstop_id = select_correct_busstop(candidates, bus_number, SERVICE_KEY)
+
+    # if not busstop_id:
+    #     print('해당 버스가 오는 정류소 없음')
+    #     exit()
+    
+    # xml_data = get_arrival_data(busstop_id, SERVICE_KEY)
+    # arrival, direction = get_arrival_time(xml_data, bus_number)
+
+    # if arrival:
+    #     print(f"{bus_number}번 버스 ({direction} 방향)은 {arrival}분 후 도착합니다.")
+    # else:
+    #     print('도착 정보 없음')
 
     if busstop_id and bus_number:
         #  도착정보 조회
@@ -181,3 +210,85 @@ if __name__ == "__main__":
                 
     else:
         print("❌ 버스 번호 또는 정류소 ID 문제")
+
+
+
+
+
+
+
+# 여기는 고민한 흔적이라 굳이 안보셔도 돼요!
+# import whisper
+# import os
+# import re
+# import requests
+# import xml.etree.ElementTree as ET
+
+# # print(os.getcwd())
+# # print("파일 존재:", os.path.exists("audio/날씨별로.wav"))
+
+# # whisper 결과 출력 확인 
+# model = whisper.load_model("base")
+
+# result = model.transcribe("audio/운림54.wav", language="ko")
+# text = result['text']
+# text = text.replace('번', '')
+# print(text)
+
+# # def extract_bus_number(text): 
+# #     numbers = re.findall(r"\d+", text) 
+# #     return numbers[0] if numbers else None
+
+# # 숫자 추출
+# def extract_bus_number(text):
+#     numbers = re.findall(r"\d{1,4}", text)
+#     return numbers[0] if numbers else None
+
+# bus_number = extract_bus_number(result['text'])
+# print(bus_number)
+
+# if bus_number:
+#     print(f"{bus_number}번 버스 조회")
+# else:
+#     print("버스 번호 인식 실패")
+
+# # 5d12073e2b1145367a82b4a460f37d262fe158a61d227acd9ad6fa32d0070069
+# # def get_bus_arrival(busstop_id):
+# #     url = "http://api.gwangju.go.kr/xml/arriveInfo"
+
+# #     params = {
+# #         "serviceKey": "5d12073e2b1145367a82b4a460f37d262fe158a61d227acd9ad6fa32d0070069",
+# #         "BUSSTOP_ID": busstop_id
+# #     }
+
+# #     response = requests.get(url, params=params)
+
+    
+# #     print(response.text)  # XML이라 이걸로 확인
+
+# # get_bus_arrival(2513)
+
+
+# def get_bus_stops():
+#     url = "	https://api.gwangju.go.kr/xml/stationInfo"
+
+#     params = {
+#         "serviceKey": "5d12073e2b1145367a82b4a460f37d262fe158a61d227acd9ad6fa32d0070069"
+#     }
+
+#     response = requests.get(url, params=params)
+#     return response.text  # response.text (XML이면), response.json() (JSON이면)
+
+
+
+
+# def find_busstop_id(xml_data, target_name):
+#     root = ET.fromstring(xml_data)
+
+#     for item in root.iter("item"):
+#         name = item.find("BUSSTOP_NAME").text
+
+#         if target_name in name:
+#             return item.find("BUSSTOP_ID").text
+
+#     return None
