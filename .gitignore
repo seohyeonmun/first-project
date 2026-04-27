@@ -1,5 +1,27 @@
+# 환경변수 / 비밀키
 .env
+
+# 가상환경
+.venv/
 venv/
+env/
+
+# 파이썬 캐시
 __pycache__/
 *.pyc
+*.pyo
+
+# 오디오 파일 / 임시 파일
 audio/
+*.wav
+*.mp3
+input.wav
+output.mp3
+test_input.wav
+
+# 학습 데이터 / 대용량 파일
+wakeword_data/
+
+# OS / editor
+.DS_Store
+.vscode/
