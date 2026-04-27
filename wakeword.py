@@ -51,15 +51,8 @@ def run():
                 print("✅ 호출어 감지!")
                 speak("네, 말씀하세요")
 
-                # 초기화 + 워밍업
                 oww.reset()
                 detection_count = 0
                 max_score = 0
 
-                for _ in range(20):
-                    stream.read(chunk_size)
-
-                print("🎧 '교통봇' 이라고 말해주세요!")
-
-if __name__ == "__main__":
-    run()
+                return True
