@@ -3,6 +3,7 @@ import requests
 import re
 import xml.etree.ElementTree as ET
 import Levenshtein
+import os
 
 # 1. Whisper - base 모델
 model = whisper.load_model("base")
@@ -147,7 +148,7 @@ def get_arrival_time(xml_data, target_bus):
 # 8. 실행
 if __name__ == "__main__":
 
-    SERVICE_KEY = "5d12073e2b1145367a82b4a460f37d262fe158a61d227acd9ad6fa32d0070069"
+    SERVICE_KEY = os.getenv("BUS_API_KEY")
 
     #  음성 입력
     text = speech_to_text("audio/운림.wav")
