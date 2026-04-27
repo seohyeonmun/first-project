@@ -106,7 +106,7 @@ def extract_busstop_name(text, bus_number):
     
     return None
     
-# 7. 도착정보 조회
+# 6. 도착정보 조회
 def get_arrival_data(busstop_id, service_key):
     url = "http://api.gwangju.go.kr/xml/arriveInfo"
 
@@ -124,7 +124,7 @@ def get_arrival_data(busstop_id, service_key):
     return response.text
 
 
-# 8. 특정 버스 필터링
+# 7. 특정 버스 필터링
 def get_arrival_time(xml_data, target_bus):
     root = ET.fromstring(xml_data)
 
@@ -144,7 +144,7 @@ def get_arrival_time(xml_data, target_bus):
     return None, None
 
 
-# 9. 실행
+# 8. 실행
 if __name__ == "__main__":
 
     SERVICE_KEY = "5d12073e2b1145367a82b4a460f37d262fe158a61d227acd9ad6fa32d0070069"
