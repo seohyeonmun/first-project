@@ -1,5 +1,7 @@
 # 환경변수 / 비밀키
 .env
+.env.*
+!.env.example
 
 # 가상환경
 .venv/
@@ -11,17 +13,34 @@ __pycache__/
 *.pyc
 *.pyo
 
-# 오디오 파일 / 임시 파일
+# 오디오 / 임시 파일
 audio/
 *.wav
 *.mp3
+*.flac
 input.wav
 output.mp3
 test_input.wav
 
-# 학습 데이터 / 대용량 파일
+# 런타임 결과물
+artifacts/
+processed/
+logs/
+output/
+outputs/
+
+# 학습 데이터 / 대용량
 wakeword_data/
+
+# 모델 파일
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+*.gguf
+*.pt
 
 # OS / editor
 .DS_Store
 .vscode/
+.idea/
