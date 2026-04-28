@@ -177,7 +177,7 @@ def process_voice():
     bus_number = extract_bus_number(text)
     names = extract_busstop_name(text, bus_number)
 
-    busstop_id = find_busstop_id(names)
+    busstop_id = find_busstop_id(names, SERVICE_KEY)
 
     if not bus_number or not names:
         return "버스 번호 또는 정류소를 이해하지 못했습니다."
