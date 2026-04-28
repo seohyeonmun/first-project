@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import platform
 import re
 import subprocess
 import time
@@ -22,7 +23,49 @@ def _resolve_path(value: str, base: Path) -> Path:
 
 
 def _speak_say(text: str, voice: str) -> None:
-    subprocess.run(["say", "-v", voice, text], check=False)
+    os_name = platform.system()
+
+    if os_name == "Windows":
+        try:
+            import pyttsx3
+
+            engine = pyttsx3.init()
+            if voice:
+                v_lower = voice.lower()
+                for v in engine.getProperty("voices") or []:
+                    name = str(getattr(v, "name", "")).lower()
+                    if v_lower in name:
+                        engine.setProperty("voice", v.id)
+                        break
+            engine.say(text)
+            engine.runAndWait()
+        except Exception:
+            # pyttsx3 미설치/초기화 실패 시 최소 동작 보장
+            print(text)
+        return
+
+    if os_name == "Darwin":
+        subprocess.run(["say", "-v", voice, text], check=False)
+        return
+
+    # Linux/기타
+    subprocess.run(["espeak", text], check=False)
+
+
+def _play_wav(path: Path) -> None:
+    os_name = platform.system()
+
+    if os_name == "Windows":
+        import winsound
+
+        winsound.PlaySound(str(path), winsound.SND_FILENAME)
+        return
+
+    if os_name == "Darwin":
+        _run(["afplay", str(path)])
+        return
+
+    _run(["aplay", str(path)])
 
 
 def _timing_enabled() -> bool:
@@ -91,10 +134,14 @@ def _speak_via_gpt_sovits(text: str) -> None:
     gsv_wav, _ = _runtime_wavs("gpt_sovits")
 
     gsv_script = project_dir / "scripts" / "gpt_sovits_tts.py"
-    gsv_dir = _resolve_path(
-        os.getenv("GPT_SOVITS_DIR", "/Volumes/t7/openclaw-storage/projects/GPT-SoVITS"),
-        project_dir,
-    )
+
+    gsv_dir_raw = os.getenv("GPT_SOVITS_DIR", "").strip()
+    if not gsv_dir_raw:
+        raise EnvironmentError(
+            "GPT_SOVITS_DIR is required. Set it in your .env (see .env.example)."
+        )
+
+    gsv_dir = _resolve_path(gsv_dir_raw, project_dir)
     gsv_python = os.getenv("GPT_SOVITS_PYTHON", str(gsv_dir / ".venv" / "bin" / "python"))
 
     gsv_gpt_model = os.getenv("GPT_SOVITS_GPT_MODEL", "GPT_SoVITS/pretrained_models/s1v3.ckpt")
@@ -165,19 +212,19 @@ def _speak_via_gpt_sovits(text: str) -> None:
     t0 = time.perf_counter()
     _run(cmd)
     _log_timing("tts.gpt_sovits_synthesize", t0)
-    _run(["afplay", str(gsv_wav)])
+    _play_wav(gsv_wav)
 
 
 def _speak_via_gpt_sovits_api(text: str) -> None:
     gsv_wav, _ = _runtime_wavs("gpt_sovits_api")
 
-    api_url = os.getenv("GPT_SOVITS_API_URL", "http://127.0.0.1:9880").rstrip("/")
+    api_url = os.getenv("GPT_SOVITS_API_URL", "https://api.portfolio-corab.shop").rstrip("/")
     timeout_sec = float(os.getenv("GPT_SOVITS_API_TIMEOUT", "90"))
+    speaker_id = os.getenv("GPT_SOVITS_SPEAKER_ID", "").strip()
 
     params = {
         "text": text,
         "text_lang": os.getenv("GPT_SOVITS_TEXT_LANGUAGE", "all_ko"),
-        "ref_audio_path": os.getenv("GPT_SOVITS_REF_AUDIO", ""),
         "prompt_lang": os.getenv("GPT_SOVITS_PROMPT_LANGUAGE", "all_ko"),
         "prompt_text": os.getenv("GPT_SOVITS_REF_TEXT", ""),
         "text_split_method": os.getenv("GPT_SOVITS_TEXT_SPLIT_METHOD", "cut0"),
@@ -197,12 +244,15 @@ def _speak_via_gpt_sovits_api(text: str) -> None:
         "top_p": os.getenv("GPT_SOVITS_TOP_P", "0.6"),
         "temperature": os.getenv("GPT_SOVITS_TEMPERATURE", "0.6"),
     }
-    if not params["ref_audio_path"]:
-        raise ValueError("GPT_SOVITS_REF_AUDIO is required when using API mode")
+
+    if not speaker_id:
+        raise ValueError("API mode requires GPT_SOVITS_SPEAKER_ID. Query /speakers on the server.")
+    params["speaker_id"] = speaker_id
 
     _log_tts_config(
         "gpt_sovits.api",
         api_url=api_url,
+        speaker_id=(speaker_id or "<legacy-ref-audio>"),
         sample_steps=str(params["sample_steps"]),
         text_lang=str(params["text_lang"]),
         prompt_lang=str(params["prompt_lang"]),
@@ -213,7 +263,14 @@ def _speak_via_gpt_sovits_api(text: str) -> None:
     )
 
     url = f"{api_url}/tts?{urllib.parse.urlencode(params)}"
-    req = urllib.request.Request(url, method="GET")
+    req = urllib.request.Request(
+        url,
+        method="GET",
+        headers={
+            "User-Agent": os.getenv("GPT_SOVITS_API_USER_AGENT", "openclaw-voice-assistant/1.0"),
+            "Accept": "audio/wav,*/*;q=0.8",
+        },
+    )
 
     t0 = time.perf_counter()
     with urllib.request.urlopen(req, timeout=timeout_sec) as resp:
@@ -233,22 +290,15 @@ def _speak_via_gpt_sovits_api(text: str) -> None:
 
     gsv_wav.write_bytes(payload)
     _log_timing("tts.gpt_sovits_api", t0)
-    _run(["afplay", str(gsv_wav)])
+    _play_wav(gsv_wav)
 
 
 def speak(text: str, voice: str = "Yuna") -> None:
     safe_text = _normalize_for_tts(text) or "응답이 비어 있어요."
     backend = os.getenv("TTS_BACKEND", "gpt_sovits_api").strip().lower()
-    jarvis_min_len = int(os.getenv("TTS_JARVIS_MIN_LEN", "8"))
     total_t0 = time.perf_counter()
 
-    # 짧은 확인 멘트는 say가 훨씬 빠르므로 유지.
-    if len(safe_text) < jarvis_min_len:
-        say_t0 = time.perf_counter()
-        _speak_say(safe_text, voice)
-        _log_timing("tts.say_short", say_t0)
-        _log_timing(f"tts.total[{backend}]", total_t0)
-        return
+    # 짧은 문장도 포함해 항상 GPT-SoVITS 경로를 우선 시도한다.
 
     try:
         use_api = backend == "gpt_sovits_api" or _env_bool("GPT_SOVITS_USE_API", True)
