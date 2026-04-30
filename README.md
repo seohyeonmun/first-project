@@ -10,7 +10,7 @@
   호출어 + 음성  질문만으로 버스 도착 정보 제공
 ---
 ## 2. 개발 기간
-2026.04.16 ~ 2026.04.29
+ 2026.04.16 ~ 2026.04.29
 ---
 ## 3. 팀원 소개
 | 이름 | 역할 |
@@ -25,8 +25,8 @@
 - TTS(GPT-SoVIT)
 ---
 ## 6. 시스템 구조
-<img width="1598" height="553" alt="2  전체 파이프라인 구조도" src="https://github.com/user-attachments/assets/cf0ddc0f-b732-4852-96ec-65dd696cea31" />
----
+- <img width="1598" height="553" alt="2  전체 파이프라인 구조도" src="https://github.com/user-attachments/assets/cf0ddc0f-b732-4852-96ec-65dd696cea31" />
+--- 
 ## 7. 시연영상
 - (영상 넣을 예정)
 ---
