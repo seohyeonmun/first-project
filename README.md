@@ -23,9 +23,16 @@
 - KWS(openWakeWord)
 - STT(Whisper)
 - TTS(GPT-SoVIT)
+- (예시처럼 표로 정리할 예정)
+| 기능 | 설명 |
+|---|---|
+| 음성 업로드 | 사용자의 음성 파일을 업로드 |
+| 감정 분석 | 음성 데이터를 기반으로 감정 상태 예측 |
+| 결과 시각화 | 분석 결과를 그래프 형태로 제공 |
+| 상담 리포트 | 상담사가 참고할 수 있는 요약 리포트 생성 |
 ---
 ## 6. 시스템 구조  
-<img width="1598" height="553" alt="2  전체 파이프라인 구조도" src="https://github.com/user-attachments/assets/cf0ddc0f-b732-4852-96ec-65dd696cea31" />  
+- <img width="1598" height="553" alt="2  전체 파이프라인 구조도" src="https://github.com/user-attachments/assets/cf0ddc0f-b732-4852-96ec-65dd696cea31" />  
 ---  
 ## 7. 시연영상  
 - (영상 넣을 예정)  
