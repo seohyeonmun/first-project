@@ -16,8 +16,8 @@
 | 이름 | 역할 |
 |---|---|
 | 김현진 | KWS(openWakeWord) 파인튜닝 |
-| 김가람 | TTS(GPT-SoVITS v2pro) 기반 음성 응답 구현 |
 | 문서현 | STT(Whisper) + Open API(공공데이터포털) 연동 |
+| 김가람 | TTS(GPT-SoVITS v2pro) 기반 음성 응답 구현 |
 ---
 ## 4. 주요 기능 ( -> 이 부분 정리 필요!!)
 - KWS(openWakeWord)
