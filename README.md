@@ -52,9 +52,9 @@
 ## 5. 시스템 구조  
 - <img width="1598" height="553" alt="2  전체 파이프라인 구조도" src="https://github.com/user-attachments/assets/cf0ddc0f-b732-4852-96ec-65dd696cea31" />  
 ---  
-## 6. 시연영상  
-- 클릭하시면 유튜브 영상으로 넘어갑니다~!
+## 6. 시연영상    
 [![Watch the Demo](https://img.youtube.com/vi/wwp4TqpGx4g/0.jpg)](https://youtu.be/wwp4TqpGx4g)
+- 클릭하시면 유튜브 영상으로 넘어갑니다~!
 - 영상을 보시면 한 방향만 안내하고 있습니다.
 - 녹화한 시간에 반대 방향은 버스 정보가 없는 시간대라 그렇습니다.
 ---
