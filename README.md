@@ -37,7 +37,7 @@
 
 - 사용자 질문에서 버스 번호와 정류소 이름을 추출합니다.
 - Levenshtein Ratio 유사도 비교를 적용하여 정류소명을 잘못 인식해도 유사한 정류소를 탐색할 수 있도록 구현했습니다.
-- 동일한 이름의 정류소가 상행·하행으로 나뉘는 경우를 고려하여 정류소 + 종점 형태로 안내합니다.
+- 동일한 이름의 정류소가 상행·하행으로 나뉘는 경우를 고려하여 정류소(종점) 형태로 안내합니다.
 
 
 ### TTS (GPT-SoVITS-v2Pro)
@@ -53,8 +53,8 @@
 - <img width="1598" height="553" alt="2  전체 파이프라인 구조도" src="https://github.com/user-attachments/assets/cf0ddc0f-b732-4852-96ec-65dd696cea31" />  
 ---  
 ## 6. 시연영상  
-[![Watch the Demo](https://img.youtube.com/vi/wwp4TqpGx4g/0.jpg)](https://youtu.be/wwp4TqpGx4g)
 - 클릭하시면 유튜브 영상으로 넘어갑니다~!
+[![Watch the Demo](https://img.youtube.com/vi/wwp4TqpGx4g/0.jpg)](https://youtu.be/wwp4TqpGx4g)
 - 영상을 보시면 한 방향만 안내하고 있습니다.
 - 녹화한 시간에 반대 방향은 버스 정보가 없는 시간대라 그렇습니다.
 ---
